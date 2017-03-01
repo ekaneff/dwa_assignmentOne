@@ -4,7 +4,7 @@ SCP stands for Secure Copy and is a way of copying files to, from, or between di
 
 For this tutorial, I will be walking you through how to use SCP to transfer files from your local machine to a virtual private server. More specifically, I will be transferring a favicon file into a Wordpress project. However, the concepts can be applied to other types of files as well for whatever sort of file transfer you need to do for your specific project. 
 
-This tutorial assumes you already have a VPS up and running with Wordpress installed. If you do not have this, you can follow the tutorial found in [setup.md]() to get that set up.
+This tutorial assumes you already have a VPS up and running with Wordpress installed. If you do not have this, you can follow the tutorial found in [setup.md](https://github.com/ekaneff/dwa_assignmentOne/blob/master/setup.md) to get that set up.
 
 
 ##Table of Contents
@@ -81,7 +81,7 @@ Once you are in this file, insert the following line directly after the opening 
 <link rel="icon" href="[server domain or IP]/wp-content/uploads/favicon.ico">
 ```
 
->Again, be sure that the domain/IP and file path is correct for your project if you did not follow along through [setup.md]().
+>Again, be sure that the domain/IP and file path is correct for your project if you did not follow along through [setup.md](https://github.com/ekaneff/dwa_assignmentOne/blob/master/setup.md).
 
 Save the file and return to the command prompt. 
 
