@@ -15,7 +15,7 @@ The first step in this whole process is going to be setting up the Virtual Priva
 1. Create a new Droplet on Digital Ocean
 2. For this project we will need version 14.04 of Ubuntu, so select the Ubuntu 14.04 image
 3. Choose the size acceptable for your application (in this case, use the $5/mo option)
-4. Select a datacenter region that is located closest to you. The numbers represent the number of data centers in that region, and the highest number is just the newest one.
+4. Select a datacenter region that is located closest to you. The numbers represent the number of data centers in that region, and the highest number is just the newest one so it is safe to just select that one.
 5. Additional options are recommended but not required. I suggest selecting Backups to allow yourself to roll back to older versions of your server in case any issues arise.
 6. For now, skip over the SSH Keys section. Setting up an SSH Key is a more secure option and will allow for you to not have to enter in a password each time you log in to your server from your machine. 
 7. Choose a hostname that makes sense for your project and hit CREATE
@@ -88,7 +88,7 @@ To install the package, simply run:
 ```shell
 sudo apt-get install nginx
 ```
-By Default, Ngnix will start running upon installation. This means that you can now enter in your server's IP into your browser window. You you land at the Nginx welcome screen, you have successfully installed Nginx. 
+By Default, Ngnix will start running upon installation. This means that you can now enter in your server's IP into your browser window. If you land at the Nginx welcome screen, you have successfully installed Nginx. 
 
 #### MariaDB
 

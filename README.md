@@ -71,7 +71,7 @@ Next, in order to get the favicon to appear on the site, we need to had a ```<li
 To navigate to this file, run the command: 
 
 ```shell
-sudo nano /var/www/html/wp-content/themes/twentysixteen/header.php
+sudo nano /var/www/html/wp-content/themes/twentyseventeen/header.php
 ```
 > Remember that if you are working with your own Wordpress files, your theme folder could have a different name. Be sure that you are targeting the correct directory for your project.
 
