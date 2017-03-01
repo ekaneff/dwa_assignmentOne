@@ -9,15 +9,17 @@ This tutorial assumes you already have a VPS up and running with Wordpress insta
 
 ##Table of Contents
 
-* [Create the Icon](#Step-One:-Create-the-Icon)
-* [SCP]()
-* [SSH and Nano Header File]()
+* [Create the Icon](#one)
+* [SCP](#two)
+* [SSH and Nano Header File](#three)
 
 
+<a name="one"></a>
 ###Step One: Create the Icon
 
 The first thing you need to do to begin this process is create a favicon file. You can create your own or use the search option on this [website](http://www.favicon-generator.org/). 
 
+<a name="two"></a>
 ###Step Two: SCP
 
 Once you have an icon made, download it and place it on your local machine somewhere that is easily accessible. 
@@ -45,6 +47,7 @@ A quick break down of what this command is doing:
 
 If the SCP was successful, you should see a little ```100%``` on the right side of your terminal window. 
 
+<a name="three"></a>
 ###Step Three: SSH and Nano Header File
 
 Now that the file transfer was successful, we can SSH into the server and make the final additions needed to get this favicon to show up. 

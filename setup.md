@@ -2,12 +2,13 @@
 #### By Emily Kaneff
 
 ##Table of Contents
-* [Set up the VPS]()
-* [Connecting and Creating Users]()
-* [Adding Dependancies]()
-* [Adding Wordpress]()
-* [Resources]()
+* [Set up the VPS](#one)
+* [Connecting and Creating Users](#two)
+* [Adding Dependancies](#three)
+* [Adding Wordpress](#four)
+* [Resources](#resources)
 
+<a name="one"></a>
 ## Step One: Set up the VPS
 
 The first step in this whole process is going to be setting up the Virtual Private Server on Digital Ocean. This is done through their clickable interface on their website. 
@@ -20,6 +21,7 @@ The first step in this whole process is going to be setting up the Virtual Priva
 6. For now, skip over the SSH Keys section. Setting up an SSH Key is a more secure option and will allow for you to not have to enter in a password each time you log in to your server from your machine. 
 7. Choose a hostname that makes sense for your project and hit CREATE
 
+<a name="two"></a>
 ## Step Two: Connecting and Creating Users
 
 Now that the server exists on Digital Ocean, you can access it from your machine through an SSH. 
@@ -60,6 +62,7 @@ You will be prompted with a series of questions, starting with the password you 
 
 You have now successfully created a new user with administrative permissions. From here, you can begin adding the different dependancies you will need on your server in order to host and serve your Wordpress site.
 
+<a name="three"></a>
 ## Step Three: Adding Dependancies
 
 Before we start adding the different packages the server needs, it is important to remember to do an ```update``` and an ```upgrade``` before anything else.
@@ -215,6 +218,7 @@ Save and close the file, and restart the Nginx service with the following comman
 sudo service nginx restart
 ```
 
+<a name="four"></a>
 ##Step Four: Adding Wordpress
 
 ####Create database and database user
@@ -422,6 +426,7 @@ At this point, you are ready to finish the installation through the web interfac
 
 From there you can just follow the directions and then you will have a working instance of Wordpress on your Ubuntu 14.04 droplet!
 
+<a name="resources"></a>
 ##Resources
 
 [Initial Server Setup with Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04)
