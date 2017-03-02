@@ -6,7 +6,7 @@ describe('Array', function() {
       	console.log("test passed!");
       	done();
       } else {
-      	console.log("Unit test failed. Commit aborted");
+      	console.log("Unit test failed. Commit aborted.");
       }
     });
   });
