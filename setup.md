@@ -130,6 +130,8 @@ sudo mysql_secure_installation
 ```
 This will prompt you for your password that you set up during installation. If you are happy with your password, you can enter 'N' when asked to change it. You can then answer with 'Y' for the rest of the questions prompted. 
 
+>Note: If you were not prompted to create a password during installation, don't panic. After running the secure installation command, if a password was not set up previously, you will be asked if you want to set one now. Simply answer yes and enter the password you would like to use. 
+
 To enter the MariaDB client, you can enter the command: 
 
 ```shell
@@ -152,10 +154,27 @@ We need PHP in order to communicate between our server and our database. Nginx d
 We will install the _fpm_ software and also a helper package for the database with the command: 
 
 ```shell
-sudo apt-get install php5-fpm php5-mysql
+sudo apt-get install php-fpm php-mysql
 ```
 
-Now that PHP is installed, we need to tell Nginx to look at the processor (fpm) for dynamic content. We do this on the 'server block level' in the configuration file through the command: 
+Once PHP has been installed, there is a small update we need to make to the pHP processor. Open the main ```php-fpm``` configuration wit root privileges: 
+
+```shell
+sudo nano /etc/php/7.0/fpm/php.ini
+```
+Using ```control W``` to search the file, locate the line ```cgi.fix_pathinfo```. It should be commented out and have a value set to '1'. 
+
+This is a really insecure setting that essentially allows for users to create scripts that would be executed that they shouldn't have been able to execute, so we will change this setting by simply removing the semi-colon comment, and setting the value to '0' instead of '1'. 
+
+Save and close the file when finished, and restart the PHP processor with the command: 
+
+```shell
+sudo systemctl restart php7.0-fpm
+```
+
+##### Nginx Configuration to Use PHP Processor
+
+Now that PHP is installed and configured, we need to tell Nginx to look at the processor (fpm) for dynamic content. We do this on the 'server block level' in the configuration file through the command: 
 
 ```shell
 sudo nano /etc/nginx/sites-available/default
@@ -165,12 +184,12 @@ Before we make any changes, the upper part of the server object in that file sho
 
 ```shell
 	listen 80 default_server;
-    listen [::]:80 default_server ipv6only=on;
+    listen [::]:80 default_server;
 
-    root /usr/share/nginx/html;
-    index index.html index.htm;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
 
-    server_name localhost;
+    server_name _;
 
     location / {
         try_files $uri $uri/ =404;
@@ -183,39 +202,34 @@ We are only changing certain portions of this server object, so after the change
 
 ```shell
 	listen 80 default_server;
-    listen [::]:80 default_server ipv6only=on;
+    listen [::]:80 default_server;
 
-    root /usr/share/nginx/html;
-    index index.php index.html index.htm;
+    root /var/www/html;
+    index **index.php** index.html index.htm index.nginx-debian.html;
 
-    server_name server_domain_name_or_IP;
+    server **_name server_domain_or_IP**;
 
     location / {
         try_files $uri $uri/ =404;
     }
 
-    error_page 404 /404.html;
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-        root /usr/share/nginx/html;
-    }
+    **location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    }**
 
-    location ~ \.php$ {
-        try_files $uri =404;
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/var/run/php5-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
+    **location ~ /\.ht {
+        deny all;
+    }**
 ```
 
 > In the \.php$ section, it may be easier to completely remove what is already in there and replace it with the lines above. This way you avoid any chance of leaving any important lines commented or leaving something out.
+> Also note that changes in the files are indicated with ** at the beginning and the end of the change. **Do not include those in the file when making your edits**. 
 
 Save and close the file, and restart the Nginx service with the following command:
 
 ```shell
-sudo service nginx restart
+sudo systemctl reload nginx
 ```
 
 <a name="four"></a>
@@ -234,6 +248,8 @@ mysql -u root -p
 ```
 
 Enter in your password for the database that you made during installation. You should now have the SQL command prompt.
+
+>If you are denied access for any reason, run the command with ```sudo``` and enter your password. 
 
 From here we can create a new database for out Wordpress site to use. What you name it isn't super important, but it should be easily recognizable. For this example, we can call it ```wordpress```:
 
@@ -282,14 +298,6 @@ tar xzvf latest.tar.gz
 ```
 If you run ```ls``` now in the directory you are in, you should see a new directory called ```wordpress``` that contains all the site files. 
 
-We can also now go ahead and download a couple of packages that will allow you to work with images and install/update plugins and components using SSH: 
-
-```shell
-sudo apt-get update
-sudo apt-get install php5-gd libssh2-php
-```
-> If you are doing this tutorial all in one go, you don't technically need to do the ```update``` command. However, since we will be downloading new packages, it is a good habit to get into.
-
 We now have all of the files that we need, so we can now begin the configuration process. 
 
 Navigate to the new ```wordpress``` directory so that you will have access to the main configuration file: 
@@ -330,15 +338,8 @@ Save and close the file once those changes have been made.
 
 ####Moving files to document root
 
-In order for the server to find and serve the files for the site, they need to be in a place that the server can see. The default location for the document root for Nginx on Ubuntu 14.04 is ```/usr/share/nginx/html/```, however, we will be setting up a new root in ```/var/www/html/``` to avoid modifying a directory that is controlled by the Nginx package. 
+Using the ```rsync``` utility will allow us to preserve permissions, ownership and data integrity when we make the transfer of the wordpress files.
 
-Using the ```rsync``` utility will allow us to preserve permissions, ownership and data integrity. 
-
-To create the new root directory, run:
-
-```shell 
-sudo mkdir -p /var/www/html
-```
 Copy the files over by running: 
 
 ```shell
@@ -359,16 +360,21 @@ Nginx runs under the group ```www-data```. To give permission to the user for th
 ```shell
 sudo chown -R [username]:www-data /var/www/html/*
 ```
-Next, create a new directory for user uploads: 
+Next, we can make sure that whenever we make a new file in the root directory, the web server still has ownership of it by running the command: 
 
 ```shell
-mkdir wp-content/uploads
+sudo find /var/www/html -type d -exec chmod g+s {} \;
 ```
-
-This directory doesn't have ```www-data``` ownership yet, but it should have group writing set already, so to fix that run: 
+There are still a few more permissions that need to be set up before moving forward. The ```wp-content``` directory needs group write access so that the web interface can make theme and plugin changes: 
 
 ```shell
-sudo chown -R :www-data /var/www/html/wp-content/uploads
+sudo chmod g+w /var/www/html/wp-content
+```
+Now the web server needs write access to all the content in that directory: 
+
+```shell
+sudo chmod -R g+w /var/www/html/wp-content/themes
+sudo chmod -R g+w /var/www/html/wp-content/plugins
 ```
 
 ####Modifying Nginx server blocks
@@ -391,7 +397,7 @@ The changes we need to make are minor, but they are:
 
 ```shell 
 server {
-		root **/var/www/html**;
+		root /var/www/html;
         index index.php index.html index.htm;
 
         server [your ip or domain name];
@@ -419,8 +425,8 @@ sudo rm /etc/nginx/sites-enabled/default
 Now to enable the changes, simply restart the web server and PHP processor: 
 
 ```shell
-sudo service nginx restart
-sudo service php5-fpm restart
+sudo systemctl reload nginx
+sudo systemctl restart php7.0-fpm
 ```
 At this point, you are ready to finish the installation through the web interface! Enter in your domain or your server's IP into a web browser and you should be directed to the Wordpress installation page. 
 
@@ -429,11 +435,11 @@ From there you can just follow the directions and then you will have a working i
 <a name="resources"></a>
 ##Resources
 
-[Initial Server Setup with Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04)
+[Initial Server Setup with Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04)
 
-[How To Install Linux, nginx, MySQL, PHP (LEMP) stack on Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-on-ubuntu-14-04)
+[How To Install Linux, Nginx, MySQL, PHP (LEMP stack) in Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-in-ubuntu-16-04)
 
-[How To Install WordPress with Nginx on Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-nginx-on-ubuntu-14-04)
+[How To Install WordPress with LEMP on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-lemp-on-ubuntu-16-04)
 
 [How to Install MariaDB 5.5 on Ubuntu 14.04 LTS](https://www.liquidweb.com/kb/how-to-install-mariadb-5-5-on-ubuntu-14-04-lts/)
 
