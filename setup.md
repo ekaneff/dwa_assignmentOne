@@ -6,6 +6,7 @@
 * [Connecting and Creating Users](#two)
 * [Adding Dependancies](#three)
 * [Adding Wordpress](#four)
+* [Adding and Configuring Git Hooks](#five)
 * [Resources](#resources)
 
 <a name="one"></a>
@@ -430,7 +431,83 @@ sudo systemctl restart php7.0-fpm
 ```
 At this point, you are ready to finish the installation through the web interface! Enter in your domain or your server's IP into a web browser and you should be directed to the Wordpress installation page. 
 
-From there you can just follow the directions and then you will have a working instance of Wordpress on your Ubuntu 14.04 droplet!
+From there you can just follow the directions and then you will have a working instance of Wordpress on your Ubuntu 16.04 droplet!
+
+<a name="five"></a>
+##Step Five: Adding and Configuring Git Hooks
+
+When deploying an application, it has become best practice to automate as many process as possible to save on time. 
+
+In this document, I will be walking you through how to get up the hooks and permissions needed on the server side so that when you follow along with the readme.md, you will only have to worry about your local machine at that point. 
+
+To begin, while still logged in as your non-root user, navigate to the ```/var``` folder: 
+
+```shell
+cd /var
+```
+
+Once there, you will want to make a directory titled ```repos```:
+
+```shell
+mkdir repos
+```
+
+>Note: some of these commands may have to be run with ```sudo```
+
+Now navigate into this folder:
+
+```shell
+cd repos
+```
+
+Once inside ```repos```, make a directory titled ```wp.git```. This will be the home for our remote repository: 
+
+```shell
+mkdir wp.git
+```
+Navigate into this new folder and run the command: 
+
+```shell
+git init --bare
+```
+This will initialize this folder as a ```bare``` repository, meaning that it essentially acts as a storage facility. No commits or merges happen within it. 
+
+After that initializes, we need to now give our non-root user ownership of the ```repos``` folder and everything that is within it, so that the local side of things will be able to push files over. To do this, run the command: 
+
+```shell
+sudo chown -R [non root username]: /var/repos
+```
+#####Configuring the ```post-receive``` hook
+
+Just so that we won't have to come back to it later, we can go ahead and set up the post-receive Git Hook now so it will be ready to accept our local files. 
+
+To do this, navigate to the ```/var/repos/wp.git/hooks``` directory to add the hook we need: 
+
+```shell
+cd /var/repos/wp.git/hooks
+```
+Next, you will need to create a ```post-receive``` file since it is not one already provided with a ```.sample``` extension:
+
+```shell
+touch post-receive
+```
+
+Nano into that file so we can add the necessary bash commands: 
+
+```shell
+nano post-receive
+
+##Paste these lines into the post-receive hook
+
+#!/bin/sh
+GIT_WORK_TREE=/var/www/html git checkout -f
+```
+
+Save and close the file. 
+
+What that hook is doing is saying that after this repository receives something, it will trigger that ```post-receive``` event which we set up to essentially take the transferred files out of git's meta data and place them in the folder where our server is serving it's files. This will allow us to work locally in a repository 
+
+Your server should now be good to go and ready to receive files from the local repository. 
 
 <a name="resources"></a>
 ##Resources
@@ -446,3 +523,5 @@ From there you can just follow the directions and then you will have a working i
 [apt-get update and upgrade explanation](http://askubuntu.com/questions/222348/what-does-sudo-apt-get-update-do)
 
 [Why to use MariaDB over MySQL Server](https://seravo.fi/2015/10-reasons-to-migrate-to-mariadb-if-still-using-mysql)
+
+[How To Use Git Hooks To Automate Development and Deployment Tasks](https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks)
