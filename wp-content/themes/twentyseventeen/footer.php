@@ -18,6 +18,7 @@
 
 		<footer id="colophon" class="site-footer" role="contentinfo">
 			<div class="wrap">
+				<link ref="author" href="http://138.197.117.60/humans.txt" />
 				<?php
 				get_template_part( 'template-parts/footer/footer', 'widgets' );
 

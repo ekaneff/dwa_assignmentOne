@@ -1,0 +1,35 @@
+                            
+/* TEAM */
+
+                            
+Your title: Emily Kaneff
+
+                            
+Site: ekaneff.github.io
+
+                            
+Twitter: @_emilyprime
+
+                            
+Location: Winter Park, USA
+
+                         
+              		
+                 
+                        [...]
+                        
+
+                            
+/* SITE */
+
+                            
+Last update: 2017/03/03 
+
+                            
+Standards: Wordpress
+
+                            
+Components: Whatever Wordpress uses
+
+                            
+Software: Git, Wordpress

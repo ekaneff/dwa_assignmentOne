@@ -1,23 +1,36 @@
-# Deploying to Wordpress with SCP
+# Deploying to Wordpress with Git Hooks
 
-SCP stands for Secure Copy and is a way of copying files to, from, or between different hosts. 
+For this tutorial, I will be walking you through how to deploy to a virtual private server using Git Hooks. Within that, we will also be implementing a unit test that will happen before a commit occurs, as well as proper git feature branch workflow.
 
-For this tutorial, I will be walking you through how to use SCP to transfer files from your local machine to a virtual private server. More specifically, I will be transferring a favicon file into a Wordpress project. However, the concepts can be applied to other types of files as well for whatever sort of file transfer you need to do for your specific project. 
+This tutorial assumes you already have a VPS up and running with Wordpress installed. If you do not have this, you can follow the tutorial found in [setup.md](https://github.com/ekaneff/dwa_assignmentOne/blob/master/setup.md) to get that set up. It also assumes you have a local repository already initialized with the Wordpress files already downloaded.
 
-This tutorial assumes you already have a VPS up and running with Wordpress installed. If you do not have this, you can follow the tutorial found in [setup.md](https://github.com/ekaneff/dwa_assignmentOne/blob/master/setup.md) to get that set up.
-
+>Note, for this tutorial you are not required to have a local environment spun up. Just simply have the files downloaded to demonstrate how they move throughout the pipeline. 
 
 ##Table of Contents
 
-* [Create the Icon](#one)
-* [SCP](#two)
-* [SSH and Nano Header File](#three)
+* Creating humans.txt
+* Implementing Unit Testing
+* Configuring Pre-Commit Hook
+* Configuring Post-Merge Hook
+* Pushing to Remote
 
 
 <a name="one"></a>
-###Step One: Create the Icon
+###Step One: Create the humans.txt File
 
-The first thing you need to do to begin this process is create a favicon file. You can create your own or use the search option on this [website](http://www.favicon-generator.org/). 
+The first thing you need to do to begin this process is create a humans.txt file. You can create your own using their template from their [website](http://humanstxt.org/Standard.html). 
+
+Once you have your file created, using your Finder tool(MacOS) you can place that file in the root directory of the theme folder that your Wordpress site on the VPS is using. Also, using your editor or the terminal, insert this line into your `header.php` file in the `head` tag: 
+
+```shell
+ <link rel="author" href="humans.txt" />
+```
+
+Then you can insert a link to the txt file somewhere in your document (this tutorial places it in the `footer.php` file)
+
+```shell
+
+``` 
 
 <a name="two"></a>
 ###Step Two: SCP
