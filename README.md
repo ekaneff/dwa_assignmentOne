@@ -2,7 +2,8 @@
 
 For this tutorial, I will be walking you through how to deploy to a virtual private server using Git Hooks. Within that, we will also be implementing a unit test that will happen before a commit occurs, as well as proper git feature branch workflow.
 
-This tutorial assumes you already have a VPS up and running with Wordpress installed. If you do not have this, you can follow the tutorial found in [setup.md](https://github.com/ekaneff/dwa_assignmentOne/blob/master/setup.md) to get that set up. It also assumes you have a local repository already initialized with the Wordpress files already downloaded.
+
+This tutorial assumes you already have a VPS up and running with Wordpress installed. If you do not have this, you can follow the tutorial found in [setup.md](https://github.com/ekaneff/dwa_assignmentOne/blob/master/setup.md) to get that set up. It also assumes you have a local repository already initialized with the Wordpress files already downloaded. You should have a master, release, and feature branches to work from. 
 
 >Note, for this tutorial you are not required to have a local environment spun up. Just simply have the files downloaded to demonstrate how they move throughout the pipeline. 
 
@@ -23,95 +24,122 @@ The first thing you need to do to begin this process is create a humans.txt file
 Once you have your file created, using your Finder tool(MacOS) you can place that file in the root directory of the theme folder that your Wordpress site on the VPS is using. Also, using your editor or the terminal, insert this line into your `header.php` file in the `head` tag: 
 
 ```shell
- <link rel="author" href="humans.txt" />
+ <link rel="author" href="http://138.197.117.60/humans.txt" />
 ```
 
 Then you can insert a link to the txt file somewhere in your document (this tutorial places it in the `footer.php` file)
 
 ```shell
-
+<link ref="author" href="http://138.197.117.60/humans.txt" />
 ``` 
+After that you are ready to begin working on the rest of the steps. 
 
 <a name="two"></a>
-###Step Two: SCP
+###Step Two: Unit Testing
 
-Once you have an icon made, download it and place it on your local machine somewhere that is easily accessible. 
+The next step we can take is implementing unit testing that will be triggered on a `pre-commit` hook. 
 
->For this tutorial, I recommend placing the file on your desktop so that it is easy to find in terminal. Also note that you should be running the SCP commands locally as your computer user, not inside your server. 
-
-Open terminal and navigate to the location of the file: 
+To do this, you will need to initialize your project with node. This is done through the command: 
 
 ```shell
-cd ~/Desktop
+npm init
+```
+Answer the prompts to your own preference, however the entry point is not relevant since we will not actually be running `npm start` on this application. 
+
+After the prompts have finished, you will need to install a couple of packages. To complete the unit test you will need to install `mocha`, and for the `pre-commit` we are going to be using a package called `pre-commit` (fitting, right?). To install these packages into your `package.json`, run: 
+
+```shell
+npm install mocha --save-dev
+npm install pre-commit --save-sev
 ```
 
-From there, you can run the SCP command: 
+After those packages install, your `package.json` should have a section for `dev-dependancies` and it should list `mocha` and `pre-commit` within it. 
 
-```shell 
-scp favicon.ico [username]@[VPS domain or IP]:/var/www/html/wp-content/uploads
+With that complete, you now need to create a folder titled `test` in the base root directory of your project, with a file titled `test.js` within it. 
+
+Inside that `test.js` file, insert this code: 
+
+```shell
+var assert = require('assert');
+describe('Array', function() {
+  describe('#indexOf()', function() {
+    it('Running unit test...', function(done) {
+      if (1==1) {
+        console.log("test passed!");
+        done();
+      } else {
+        console.log("Unit test failed! Commit aborted.");
+      }
+    });
+  });
+});
 ```
 
-A quick break down of what this command is doing: 
+This is the code that Mocha needs to run it's test. As it stands, this test will always pass which is what we want for the sake of this tutorial. However, you can change the values to cause a fail if you want to see what happens then. 
 
-* The first argument after ```scp``` is the file or files you are transferring. In this example we are only transferring one file and it is on the root of the directory we are in, so no file path was needed. Alternative ways that could look would be ```/some/file/path/favicon.ico``` or ```./*``` for all files in a directory. 
-* The second argument is broken down into two parts: 
-	* ```[username]@[VPS domain or IP]``` is how you log in to the VPS. You will need to use the user name for the user that has sudo privileges, and then specify either the domain name or the IP address associated with your server.
-	* ```/var/www/html/wp-content/uploads``` is where you specify the file path on the VPS that you want the transferred file/s to go. In this case, we are directing the files to a folder in the document root of the Wordpress project we set up in the set up tutorial. This path needs to be whatever location your server is watching to serve it's files. 
+TO test if it passed, you can run this line in your terminal: 
 
-If the SCP was successful, you should see a little ```100%``` on the right side of your terminal window. 
+```shell
+ ./node_modules/mocha/bin/mocha
+```
+
+Next step is the Git hook. Hooks are located in the hidden `.git` folder of any git repository. To access them, you simply navigate there from your root directory through terminal: 
+
+```shell
+cd .git/hooks
+```
+
+One already exists for `pre-commit`, but because it has a `.sample` extension, it does not run. To make it so this hook fires, simply run:
+
+```shell
+cp pre-commit.sample pre-commit
+```
+
+This will create a new file called `pre-commit` without the extension that will contain all the code from the pre-generated one. 
+
+Now because of the `pre-commit` npm package we installed, this is all we have to do here. That package will know when a commit happens and fire off that hook and run the unit test for us, no problem!
 
 <a name="three"></a>
-###Step Three: SSH and Nano Header File
+###Step Three: Post-Merge Hook
 
-Now that the file transfer was successful, we can SSH into the server and make the final additions needed to get this favicon to show up. 
+The last hook we need to set up on the local side is the post-merge hook. This needs to fire after a merge happens on the release branch and it will then push our files to our remote repository, at which point the post-receive hook we set up on that end will fire and push our files into our live folder. 
 
-To SSH into the server, run: 
-
-```shell
-ssh [username]@[domain or IP]
-```
-
-Enter in the password associated with the user you log in as. 
-
-Once in the server, you can double check that the file transferred correctly by running the commands: 
+Before that though, we need to run the line: 
 
 ```shell
- cd /var/www/html/wp-content/uploads
- ls
+git remote add Production ssh://[username]@[ip]:/var/repos/wp.git
 ```
 
-This will change your current directory to the one where we sent the file, and then it will display all the files and directories within that directory. If the SCP was successful, you should see ```favicon.ico``` appear after the ```ls``` command. 
+This will create the connecion to our remote repository that will allow for us to push files there. 
 
-Next, in order to get the favicon to appear on the site, we need to had a ```<link />``` tag into the head of the site. This is found in the ```header.php``` file which is located in the theme. 
-
-To navigate to this file, run the command: 
+Create the post-merge hook:
 
 ```shell
-sudo nano /var/www/html/wp-content/themes/twentyseventeen/header.php
+touch post-merge
 ```
-> Remember that if you are working with your own Wordpress files, your theme folder could have a different name. Be sure that you are targeting the correct directory for your project.
-
-Once you are in this file, insert the following line directly after the opening ```<head>``` tag:
+Use `nano` to open that new file so we can edit it, and place this code there: 
 
 ```shell
-<link rel="icon" href="[server domain or IP]/wp-content/uploads/favicon.ico">
+#!/bin/bash
+
+one=$(git merge-base HEAD^1 release)
+two=$(git rev-parse --verify HEAD^1)
+
+if [[ $one == $two ]];
+then
+        echo "Pushing to Production master..."
+        git push Production master
+        exit
+else
+        echo "Did not push to Production master. Make sure you are on release branch"
+        exit
+fi
+
 ```
 
->Again, be sure that the domain/IP and file path is correct for your project if you did not follow along through [setup.md](https://github.com/ekaneff/dwa_assignmentOne/blob/master/setup.md).
+This will make sure that you are on the release branch when you merge, and then fire the appropriate commands accordingly. The `push` command is pushing our files into the metadata of the `Production` remote repository which will then be transferred to the live folder through the `post-receive` hook on the remote end.
 
-Save the file and return to the command prompt. 
-
-If everything is correct, you should now be able to visit your site in the browser and see your little favicon appear in the tab bar! 
-
->If you do not see your icon, there could be an issue with the file paths that were used. Also try clearing the cache on your browser and refreshing the page as sometimes that may cause issues. 
-
+After that hook is made, you're all set! Add your humans.txt file to your feature branch files, `checkout` your release branch, `merge` your feature branch into your release branch, and you should see your humans.txt file appear in the `/var/www/html` folder on your server!
 
 ###Resources
 
-[http://www.hypexr.org/linux_scp_help.php]()
-
-[https://serversforhackers.com/video/deploying-with-scp](https://serversforhackers.com/video/deploying-with-scp)
-
-[https://docs.nexcess.net/article/how-to-add-favicons-to-wordpress.html](https://docs.nexcess.net/article/how-to-add-favicons-to-wordpress.html)
-
-[http://www.favicon-generator.org/](http://www.favicon-generator.org/)
