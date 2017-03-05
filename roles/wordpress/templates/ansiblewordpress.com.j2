@@ -1,0 +1,33 @@
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html/wordpress;
+
+        index index.php index.html index.htm index.nginx-debian.html;
+
+        server_name http://45.55.246.212/;
+
+        location / {
+                
+                try_files $uri $uri/ /index.php?q=$uri&$args;
+        }
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        location ~ \.php$ {
+                include snippets/fastcgi-php.conf;
+        #
+        #       # With php7.0-cgi alone:
+        #       fastcgi_pass 127.0.0.1:9000;
+        #       # With php7.0-fpm:
+                fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+        }
+
+    # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+        #
+        location ~ /\.ht {
+                deny all;
+        }
+    }

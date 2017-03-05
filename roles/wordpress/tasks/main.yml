@@ -1,0 +1,68 @@
+---
+- name: Add Nginx Repo
+  apt_repository: repo='ppa:nginx/stable' state=present
+
+- name: Install Nginx
+  apt: pkg=nginx state=latest update_cache=true
+  notify:
+    - Start Nginx
+
+- name: Add H5BP Config
+  copy: src=h5bp dest=/etc/nginx owner=root group=root
+
+- name: Remove Default Config
+  file: dest=/etc/nginx/sites-enabled/default state=absent
+  notify: 
+    - Reload Nginx
+
+- name: Add Server {{ domain }} Config
+  template: src={{ domain }}.j2 dest=/etc/nginx/sites-available/{{ domain }} owner=root group=root
+
+- name: Enable Site Config
+  file: src=/etc/nginx/sites-available/{{ domain }} dest=/etc/nginx/sites-enabled/{{ domain }} state=link
+  notify: 
+    - Reload Nginx
+
+- name: Add MariaDB Respository
+  apt_repository: repo='deb http://ftp.igh.cnrs.fr/pub/mariadb/repo/10.0/ubuntu trusty main' state=present
+
+- name: Add Respository Key
+  apt_key: keyserver=keyserver.ubuntu.com id=0xcbcb082a1bb943db
+
+- name: Install MariaDB Server
+  apt: name=mariadb-server state=latest update_cache=true
+
+- name: Install MySQLdb
+  apt: name=python-mysqldb state=latest update_cache=true
+
+- name: Create new database 
+  mysql_db: name={{dbname}} state=present
+
+- name: Add Database User
+  mysql_user: name={{ dbuser }} password={{dbpass}} priv='*.*:ALL' state=present
+
+- name: Add PHP7 Repository 
+  apt_repository: repo='ppa:ondrej/php' state=present
+
+- name: Install PHP7
+  apt: pkg={{ item }} state=latest update_cache=true
+  with_items:
+    - php7.0-fpm
+    - php7.0-mysql
+
+- name: Download WordPress
+  get_url: url=http://wordpress.org/wordpress-{{ wp_version }}.tar.gz dest=/var/www/html/wordpress-{{ wp_version }}.tar.gz
+
+- name: Extract Wordpress Files
+  command: chdir=/var/www/html /bin/tar xvf wordpress-{{ wp_version }}.tar.gz creates=/var/www/html/wordpress
+
+- name: Fetch random salts for WordPress config
+  local_action: command curl https://api.wordpress.org/secret-key/1.1/salt/
+  register: "wp_salt"
+  become: no
+  become_method: sudo
+
+- name: Copy WordPress config file
+  template: src=wp-config.php dest=/var/www/html/wordpress
+
+
