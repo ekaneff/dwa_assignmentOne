@@ -1,5 +1,6 @@
 ---
 domain: ansiblewordpress.com
+ip: http://45.55.246.212/
 dbuser: dbuser
 dbpass: dbpass
 dbname: wordpress
