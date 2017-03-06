@@ -141,5 +141,3 @@ This will make sure that you are on the release branch when you merge, and then 
 
 After that hook is made, you're all set! Add your humans.txt file to your feature branch files, `checkout` your release branch, `merge` your feature branch into your release branch, and you should see your humans.txt file appear in the `/var/www/html` folder on your server!
 
-###Resources
-
