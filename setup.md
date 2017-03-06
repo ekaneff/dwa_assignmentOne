@@ -38,7 +38,5 @@ You should now be able to go to the IP of your project and be greeted with the W
 
 >If you would like to install a newer version of wordpress, simply change the variable in the `var` file. 
 
-
-<a name="resources"></a>
 ##Resources
 [Ansible Docs on Playbooks](http://docs.ansible.com/ansible/playbooks.html)
