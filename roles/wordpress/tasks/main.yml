@@ -1,4 +1,9 @@
 ---
+- name: Creating post-receive Hook
+  script: hooks-setup.sh
+  args: 
+    creates: /var/repos/wp.git
+    
 - name: Add Nginx Repo
   apt_repository: repo='ppa:nginx/stable' state=present
 
