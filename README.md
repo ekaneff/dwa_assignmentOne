@@ -24,13 +24,13 @@ The first thing you need to do to begin this process is create a humans.txt file
 Once you have your file created, using your Finder tool(MacOS) you can place that file in the root directory of the theme folder that your Wordpress site on the VPS is using. Also, using your editor or the terminal, insert this line into your `header.php` file in the `head` tag: 
 
 ```shell
- <link rel="author" href="http://138.197.117.60/humans.txt" />
+ <link rel="author" href="http://[your ip]/humans.txt" />
 ```
 
 Then you can insert a link to the txt file somewhere in your document (this tutorial places it in the `footer.php` file)
 
 ```shell
-<link ref="author" href="http://138.197.117.60/humans.txt" />
+<link ref="author" href="[your ip]/humans.txt" />
 ``` 
 After that you are ready to begin working on the rest of the steps. 
 
@@ -139,7 +139,5 @@ fi
 
 This will make sure that you are on the release branch when you merge, and then fire the appropriate commands accordingly. The `push` command is pushing our files into the metadata of the `Production` remote repository which will then be transferred to the live folder through the `post-receive` hook on the remote end.
 
-After that hook is made, you're all set! Add your humans.txt file to your feature branch files, `checkout` your release branch, `merge` your feature branch into your release branch, and you should see your humans.txt file appear in the `/var/www/html` folder on your server!
-
-###Resources
+After that hook is made, you're all set! Add your humans.txt file to your feature branch files, `checkout` your release branch, `merge` your feature branch into your release branch, and you should see your `humans.txt` file appear in the `/var/www/html` folder on your server!
 

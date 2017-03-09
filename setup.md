@@ -1,4 +1,4 @@
-# How to Set Up Wordpress on Digital Ocean with Ubuntu 14.04 with LEMP Stack
+# How to Set Up Wordpress on Digital Ocean with Ubuntu 16.04 with LEMP Stack
 #### By Emily Kaneff
 
 ##Table of Contents
@@ -15,7 +15,7 @@
 The first step in this whole process is going to be setting up the Virtual Private Server on Digital Ocean. This is done through their clickable interface on their website. 
 
 1. Create a new Droplet on Digital Ocean
-2. For this project we will need version 14.04 of Ubuntu, so select the Ubuntu 14.04 image
+2. For this project we will need version 16.04 of Ubuntu, so select the Ubuntu 16.04 image
 3. Choose the size acceptable for your application (in this case, use the $5/mo option)
 4. Select a datacenter region that is located closest to you. The numbers represent the number of data centers in that region, and the highest number is just the newest one so it is safe to just select that one.
 5. Additional options are recommended but not required. I suggest selecting Backups to allow yourself to roll back to older versions of your server in case any issues arise.
@@ -200,32 +200,32 @@ Before we make any changes, the upper part of the server object in that file sho
 > Note: There will be commented lines shown in the file on your terminal. What is shown here is with those removed. 
 
 We are only changing certain portions of this server object, so after the changes you should have this in your server object: 
+>you can copy and paste this into your server block if you so please
 
 ```shell
 	listen 80 default_server;
     listen [::]:80 default_server;
 
     root /var/www/html;
-    index **index.php** index.html index.htm index.nginx-debian.html;
+    index index.php index.html index.htm index.nginx-debian.html;
 
-    server **_name server_domain_or_IP**;
+    server **_name server_domain_or_IP;
 
     location / {
         try_files $uri $uri/ =404;
     }
 
-    **location ~ \.php$ {
+    location ~ \.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-    }**
+    }
 
-    **location ~ /\.ht {
+    location ~ /\.ht {
         deny all;
-    }**
+    }
 ```
 
 > In the \.php$ section, it may be easier to completely remove what is already in there and replace it with the lines above. This way you avoid any chance of leaving any important lines commented or leaving something out.
-> Also note that changes in the files are indicated with ** at the beginning and the end of the change. **Do not include those in the file when making your edits**. 
 
 Save and close the file, and restart the Nginx service with the following command:
 
@@ -404,13 +404,12 @@ server {
         server [your ip or domain name];
 
         location / {
-                **# try_files $uri $uri/ =404;**
-                try_files $uri $uri/ **/index.php?q=$uri&$args;**
+                # try_files $uri $uri/ =404;
+                try_files $uri $uri/ /index.php?q=$uri&$args;
         }
       }
 ```
-
->Changes are indicated with **. Do not include those in the file. 
+>Again, you can copy and paste directly or insert the changes carefully
 
 Now we need to link this new file to the ```sites-enabled``` directory in order for it to be activated. To do this, run: 
 
