@@ -110,7 +110,7 @@ Before that though, we need to run the line:
 git remote add Production ssh://[username]@[ip]:/var/repos/wp.git
 ```
 
-This will create the connecion to our remote repository that will allow for us to push files there. 
+This will create the connection to our remote repository that will allow for us to push files there. 
 
 Create the post-merge hook:
 
