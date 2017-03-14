@@ -38,5 +38,25 @@ You should now be able to go to the IP of your project and be greeted with the W
 
 >If you would like to install a newer version of wordpress, simply change the variable in the `var` file. 
 
+## Using Vagrant for Local Environment
+
+Ansible does a fantastic job of setting up the required environment needed to handle our Wordpress application on the server side, but what about when we want to test our project locally? Well, we still need all the appropriate dependancies such as Nginx, PHP, and a database. So instead of installing all those things globally on our machine, we can create little virtual machines that have environments that mirror the environment on the server. 
+
+To do this, there is a `Vagrantfile` in this repository that talks to a `bootstrap.sh` provisions file that will go through and create a virtual machine and install Git, Nginx, PHP and Maria with a user and permissions. It also specifies a private network that you can open your project on in your browser. 
+
+In order for this to work properly, you need to have Virtual Box installed. You can go ahead and download this program [here](https://www.virtualbox.org/wiki/Downloads). 
+
+You also need to have Vagrant installed globally on your machine. You can follow the download instructions [here](https://www.vagrantup.com/).
+
+Once both of those things are on your machine, you can navigate to your project's root directory and run the command: 
+
+```shell
+vagrant up
+```
+
+> The install may take a few minutes. 
+
+Once it finishes, you should be able to pull up the private network ip `172.16.0.15` in your browser, and you'll be greeted with the Wordpress install page. 
+
 ##Resources
 [Ansible Docs on Playbooks](http://docs.ansible.com/ansible/playbooks.html)
